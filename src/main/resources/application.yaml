@@ -1,0 +1,47 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1
+
+
+spring:
+  application:
+    name: credit-application-service
+  web:
+    locale: en
+    locale-resolver: FIXED
+  output.ansi.enabled: ALWAYS
+  datasource:
+    url: jdbc:postgresql://localhost:5432/creditdb
+    username: credit
+    password: credit
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      frankfurter:
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+
+  retry:
+    instances:
+      frankfurter:
+        maxAttempts: 3
+        waitDuration: 200ms
+
+exchange:
+  frankfurter:
+    url: https://api.frankfurter.dev/v1
+    connect-timeout: 500
+    read-timeout: 700
+
+
+logging:
+  level:
+    org:
+      flywaydb: DEBUG

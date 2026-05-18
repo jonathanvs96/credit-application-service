@@ -1,0 +1,485 @@
+openapi: 3.0.3
+info:
+  title: Credit Application Management API
+  description: API for managing customer credit applications, supporting request registration, search with filtering and pagination, and application status management.
+  version: 1.0.0
+paths:
+  /credit-applications:
+    post:
+      operationId: createCreditApplication
+      summary: Create a credit application
+      description: Creates a new credit application, calculates financial projections, and stores exchange-rate converted amounts in MXN, USD, and EUR.
+      tags:
+        - CreditApplications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCreditApplicationRequest'
+      responses:
+        201:
+          description: Credit application successfully created
+          headers: 
+            Location:
+              description: Absolute or relative URI pointing to the newly created credit application resource.
+              schema: 
+                type: string
+                example: http://localhost:8080/credit-applications/550e8400-e29b-41d4-a716-446655440000
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreditApplicationResponse"
+        400:
+          $ref: "#/components/responses/BadRequestError"
+    get:
+      operationId: getCreditApplications
+      summary: Search credit applications
+      tags:
+        - CreditApplications
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Page number
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+            example: 0
+
+        - name: size
+          in: query
+          required: false
+          description: Page Size
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            example: 10
+
+        - name: customerRfc
+          in: query
+          required: false
+          description: Filter credit applications by customer RFC
+          schema:
+            type: string
+            example: XAXX010101000
+
+        - name: status
+          in: query
+          required: false
+          description: Filter credit applications by current status
+          schema:
+            $ref: '#/components/schemas/CreditStatus'
+
+        - name: minAmount
+          in: query
+          required: false
+          description: Minimum requested credit amount
+          schema:
+            type: number
+            format: double
+            example: 5000
+
+        - name: maxAmount
+          in: query
+          required: false
+          description: Maximum requested credit amount
+          schema:
+            type: number
+            format: double
+            example: 50000
+
+      responses:
+        200:
+          description: Credit applications found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedCreditApplicationResponse'
+  /credit-applications/{creditApplicationId}:
+    parameters:
+      - $ref: '#/components/parameters/CreditApplicationId'
+    get:
+      operationId: getCreditApplication
+      summary: pendiente
+      description: pendiente
+      tags:
+        - CreditApplications
+      responses: 
+        200:
+          description: Credit application found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditApplicationResponse'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+  /credit-applications/{creditApplicationId}/status:    
+    parameters:
+      - $ref: '#/components/parameters/CreditApplicationId'
+    patch:
+      operationId: changeCreditApplicationStatus
+      summary: Change credit application status
+      description: |
+        ### State machine transition endpoint
+
+        This endpoint changes the status of a Credit Application following strict domain rules.
+
+        #### Valid transitions
+        - CREATED → UNDER_REVIEW
+        - UNDER_REVIEW → APPROVED
+        - UNDER_REVIEW → REJECTED
+        - CREATED → CANCELLED
+        - UNDER_REVIEW → CANCELLED
+
+        #### Business rules
+        Invalid transitions will be rejected with:
+        `BUSINESS_RULE_VIOLATION (422)`
+      tags:
+        - CreditApplications
+      requestBody:
+        required: true
+        content: 
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCreditStatusRequest'
+      responses: 
+        200:
+          description: Credit application with new status
+          content: 
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/CreditApplicationResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        409:
+          $ref: '#/components/responses/ConflictError'
+                
+    
+components:
+  parameters: 
+    CreditApplicationId:
+      name: creditApplicationId
+      in: path
+      required: true
+      description: Unique identifier of the credit application
+      schema:
+        type: string
+        format: uuid
+        example: 550e8400-e29b-41d4-a716-446655440000
+      
+  schemas:
+    CreditApplicationResponse:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the credit application
+          type: string
+          format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440000
+        customerName:
+          type: string
+          description: Full name of the customer requesting the credit
+          example: Juan Perez Ramirez
+        customerEmail:
+          type: string
+          format: email
+          description: Email address of the customer requesting the credit
+          example: juan.perez@example.com
+        customerRfc:
+          type: string
+          description: RFC of the Customer
+          example: XAXX010101000
+        requestedAmount:
+          type: number
+          format: double
+          description: Total amount requested by the customer
+          example: 250000.00
+        currency:
+          description: Currency used for the requested credit amount
+          $ref: '#/components/schemas/Currencies'
+        termMonths:
+          description: Loan repayment term expressed in months
+          type: integer
+          example: 6
+        annualInterestRate:
+          description: Annual interest rate applied to the credit application expressed as a decimal value
+          type: number
+          format: double
+          example: 0.25
+        monthlyPayment:
+          description: Fixed monthly payment amount calculated using the loan amortization formula.
+          type: number
+          format: double
+          example: 1250.75
+        totalToPay:
+          description: Total amount to be paid over the full loan term, including interest.
+          type: number
+          format: double
+          example: 45027.00
+        amountUsd:
+          description: Requested amount converted to US dollars using the exchange rate available at creation time. This field may be null if the exchange rate service is unavailable.
+          type: number
+          format: double
+          example: 5300.25
+          nullable: true
+        amountEur:
+          description: Requested amount converted to euros using the exchange rate available at creation time. This field may be null if the exchange rate service is unavailable.
+          type: number
+          format: double
+          example: 4875.40
+          nullable: true
+        exchangeRateDate:
+          description: Date when the exchange rates used for currency conversion were obtained.
+          type: string
+          format: date
+          example: 2026-05-16
+          nullable: true  
+        status:
+          description: Current status of the credit application within its lifecycle
+          $ref: '#/components/schemas/CreditStatus'
+        statusReason:
+          description: Additional information explaining the current status or decision of the credit application.
+          type: string
+          example: Application approved successfully.
+          nullable: true
+        createdAt:
+          description: Timestamp when the credit application was created.
+          type: string
+          format: date-time
+          example: 2026-05-16T14:32:10Z
+
+    CreateCreditApplicationRequest:
+      type: object
+      required:
+        - customerName
+        - customerEmail
+        - requestedAmount
+        - termMonths
+        - annualInterestRate
+      properties:
+        customerName:
+          type: string
+          description: Full name of the customer requesting the credit
+          example: Juan Perez Ramirez
+          minLength: 3
+          maxLength: 120
+          pattern: '.*\S.*'
+        customerEmail:
+          type: string
+          format: email
+          description: Email address of the customer requesting the credit
+          example: juan.perez@example.com
+          pattern: '.*\S.*'
+        customerRfc:
+          type: string
+          description: Email address of the customer requesting the credit
+          example: XAXX010101000
+          minLength: 12
+          maxLength: 13
+          pattern: '.*\S.*'
+        requestedAmount:
+          type: number
+          format: double
+          description: Total amount requested by the customer
+          example: 250000.00
+          minimum: 1
+          maximum: 5000000
+        currency:
+          $ref: '#/components/schemas/Currencies'
+        termMonths:
+          description: Loan repayment term expressed in months
+          type: integer
+          example: 6
+          minimum: 6
+          maximum: 60
+        annualInterestRate:
+          description: Annual interest rate applied to the credit application expressed as a decimal value
+          type: number
+          format: double
+          example: 0.25
+          minimum: 0.05
+          maximum: 0.60
+    
+    UpdateCreditStatusRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          $ref: '#/components/schemas/CreditStatus'
+        reason:
+          type: string
+          description: Optional reason for the status change
+          example: Meets credit policy requirements
+    
+    CreditStatus:
+      type: string
+      example: APPROVED
+      enum:
+        - CREATED
+        - UNDER_REVIEW
+        - APPROVED
+        - REJECTED
+        - CANCELLED
+    Currencies:      
+      description: Currency used for the requested credit amount
+      type: string
+      example: MXN
+      enum:
+        - MXN
+
+    PagedCreditApplicationResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          description: List of credit applications for the current page
+          items:
+            $ref: '#/components/schemas/CreditApplicationResponse'
+        metadata:
+          description: Pagination metadata associated with the current response, including page information, total elements, and navigation flags.
+          $ref: '#/components/schemas/PageMetadata'
+          
+    PageMetadata:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: Zero-based index of the current page.
+          example: 0
+
+        size:
+          type: integer
+          description: Number of items returned per page.
+          example: 20
+
+        totalElements:
+          type: integer
+          format: int64
+          description: Total number of elements matching the query criteria.
+          example: 50
+
+        totalPages:
+          type: integer
+          description: Total number of pages available based on the current page size.
+          example: 5
+
+        isLast:
+          type: boolean
+          description: Indicates whether the current page is the last page in the result set.
+          example: false
+        
+    ApiError:
+      type: object
+      properties:
+        timestamp:
+          description: Timestamp when the error occurred.
+          type: string
+          format: date-time
+          example: 2026-05-11T14:30:00Z        
+        status:
+          description: HTTP status code associated with the error.
+          type: integer
+          example: 400        
+        error:
+          description: Standard HTTP error reason phrase.
+          type: string
+          example: Bad Request        
+        code:
+          description: Application-specific error code used to identify the error type.
+          type: string
+          example: VALIDATION_ERROR        
+        message:
+          description: Human-readable description of the error.
+          type: string
+          example: annualInterestRate must be between 0.05 and 0.60        
+        path:
+          description: Request path where the error occurred.
+          type: string
+          example: /api/v1/credit-applications
+
+  responses:            
+    BadRequestError:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+          examples:
+            updateStatusError:
+              value:
+                timestamp: 2026-05-11T14:30:00Z
+                status: 400
+                error: Bad Request
+                code: VALIDATION_ERROR
+                message: "status: must not be null"
+                path: /api/v1/credit-applications/550e8400-e29b-41d4-a716-446655440000/status
+            validationError:
+              value:
+                timestamp: 2026-05-11T14:30:00Z
+                status: 400
+                error: Bad Request
+                code: VALIDATION_ERROR
+                message: "customerName: must not be null"
+                path: /api/v1/credit-applications
+                
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          examples:
+            resourceNotFound:
+              value:
+                timestamp: 2026-05-11T14:30:00Z
+                status: 404
+                error: Not Found
+                code: RESOURCE_NOT_FOUND
+                message: Credit application with id '123' was not found
+                path: /api/v1/credit-applications/123
+                
+    ConflictError:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+          examples:
+            changeStatusRuleConflict:
+              value:
+                timestamp: 2026-05-11T14:30:00Z
+                status: 409
+                error: Conflict
+                code: CONFLICT
+                message: "Invalid status transition from CANCELLED to CREATED "
+                path: /api/v1/credit-applications/550e8400-e29b-41d4-a716-446655440000/status
+            conflict:
+              value:
+                timestamp: 2026-05-11T14:30:00Z
+                status: 409
+                error: Conflict
+                code: CONFLICT
+                message: "Credit application already exists for customer '456'"
+                path: /api/v1/credit-applications
+    
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+          examples:
+            internalError:
+              value:
+                timestamp: 2026-05-11T14:30:00Z
+                status: 500
+                error: Internal Server Error
+                code: INTERNAL_ERROR
+                message: "Unexpected error occurred"
+                path: /api/v1/credit-applications

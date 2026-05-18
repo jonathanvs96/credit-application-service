@@ -1,0 +1,20 @@
+services:
+  postgres:
+    container_name: credit-postgres
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: creditdb
+      POSTGRES_USER: credit
+      POSTGRES_PASSWORD: credit
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data_credit:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U credit -d creditdb"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  
+volumes:
+  pg_data_credit:

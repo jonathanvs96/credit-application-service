@@ -1,0 +1,11 @@
+resilience4j:
+  circuitbreaker:
+    instances:
+      frankfurter:
+        slidingWindowSize: 1
+        failureRateThreshold: 100
+
+  retry:
+    instances:
+      frankfurter:
+        maxAttempts: 1
