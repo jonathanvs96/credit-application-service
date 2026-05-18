@@ -15,6 +15,17 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
+  credit-application-service:
+    build: .
+    container_name: credit-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
   
 volumes:
   pg_data_credit:
