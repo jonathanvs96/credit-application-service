@@ -1,0 +1,537 @@
+{
+  "info": {
+    "_postman_id": "850bdfff-5e7b-42d7-89ca-26bb6dedcd90",
+    "name": "credit-application-service-collect",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "11438169"
+  },
+  "item": [
+    {
+      "name": "Currencies",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{FRANKFURTER_URL}}/latest?base=MXN&symbols=USD,EUR",
+          "host": [
+            "{{FRANKFURTER_URL}}"
+          ],
+          "path": [
+            "latest"
+          ],
+          "query": [
+            {
+              "key": "base",
+              "value": "MXN"
+            },
+            {
+              "key": "symbols",
+              "value": "USD,EUR"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create credit-application",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"customerName\": \"Juan Perez Ramirez\",\r\n  \"customerEmail\": \"juan.perez@example.com\",\r\n  \"customerRfc\": \"XAXX010101000\",\r\n  \"requestedAmount\": 250000,\r\n  \"currency\": \"MXN\",\r\n  \"termMonths\": 6,\r\n  \"annualInterestRate\": 0.25\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{CREDIT_APPLICATION_URL}}/credit-applications",
+          "host": [
+            "{{CREDIT_APPLICATION_URL}}"
+          ],
+          "path": [
+            "credit-applications"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "Bad Request - Missing Values",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"customerRfc\": \"XAXX010101000\",\r\n  \"requestedAmount\": 250000,\r\n  \"currency\": \"MXN\",\r\n  \"termMonths\": 6,\r\n  \"annualInterestRate\": 0.25\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{CREDIT_APPLICATION_URL}}/credit-applications",
+              "host": [
+                "{{CREDIT_APPLICATION_URL}}"
+              ],
+              "path": [
+                "credit-applications"
+              ]
+            }
+          },
+          "_postman_previewlanguage": "",
+          "header": [],
+          "cookie": [
+            {
+              "expires": "Invalid Date",
+              "domain": "",
+              "path": ""
+            }
+          ],
+          "body": ""
+        },
+        {
+          "name": "Bad Request - Values not valid",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"customerName\": \"Juan Perez Ramirez\",\r\n  \"customerEmail\": \"juan.perez@example.com\",\r\n  \"customerRfc\": \"XAXX010101000\",\r\n  \"requestedAmount\": 250000,\r\n  \"currency\": \"MXN\",\r\n  \"termMonths\": 6,\r\n  \"annualInterestRate\": 0.25\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{CREDIT_APPLICATION_URL}}/credit-applications",
+              "host": [
+                "{{CREDIT_APPLICATION_URL}}"
+              ],
+              "path": [
+                "credit-applications"
+              ]
+            }
+          },
+          "_postman_previewlanguage": null,
+          "header": null,
+          "cookie": [],
+          "body": null
+        }
+      ]
+    },
+    {
+      "name": "Get Credit-Application",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{CREDIT_APPLICATION_URL}}/credit-applications/:credit-application-id",
+          "host": [
+            "{{CREDIT_APPLICATION_URL}}"
+          ],
+          "path": [
+            "credit-applications",
+            ":credit-application-id"
+          ],
+          "variable": [
+            {
+              "key": "credit-application-id",
+              "value": "4fdc0efa-6ff2-40cc-86ff-8421cad7c04b"
+            }
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "Resource Not Found",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{CREDIT_APPLICATION_URL}}/credit-applications/:credit-application-id",
+              "host": [
+                "{{CREDIT_APPLICATION_URL}}"
+              ],
+              "path": [
+                "credit-applications",
+                ":credit-application-id"
+              ],
+              "variable": [
+                {
+                  "key": "credit-application-id",
+                  "value": "d71f316b-0996-4076-9028-4513f962d8f6"
+                }
+              ]
+            }
+          },
+          "_postman_previewlanguage": null,
+          "header": null,
+          "cookie": [],
+          "body": null
+        }
+      ]
+    },
+    {
+      "name": "Search credit-application",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"customerName\": \"Juan Perez Ramirez\",\r\n  \"customerEmail\": \"juan.perez@example.com\",\r\n  \"customerRfc\": \"XAXX010101000\",\r\n  \"requestedAmount\": 250000,\r\n  \"currency\": \"MXN\",\r\n  \"termMonths\": 6,\r\n  \"annualInterestRate\": 0.25\r\n}"
+        },
+        "url": {
+          "raw": "{{CREDIT_APPLICATION_URL}}/credit-applications?customerRfc=XAXX010101000&page=0&size=25",
+          "host": [
+            "{{CREDIT_APPLICATION_URL}}"
+          ],
+          "path": [
+            "credit-applications"
+          ],
+          "query": [
+            {
+              "key": "customerRfc",
+              "value": "XAXX010101000"
+            },
+            {
+              "key": "status",
+              "value": "CREATED",
+              "disabled": true
+            },
+            {
+              "key": "minAmount",
+              "value": "10000",
+              "type": "text",
+              "disabled": true
+            },
+            {
+              "key": "maxAmount",
+              "value": "15000",
+              "type": "text",
+              "disabled": true
+            },
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "25"
+            }
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "Search - With Filters",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"customerName\": \"Juan Perez Ramirez\",\r\n  \"customerEmail\": \"juan.perez@example.com\",\r\n  \"customerRfc\": \"XAXX010101000\",\r\n  \"requestedAmount\": 250000,\r\n  \"currency\": \"MXN\",\r\n  \"termMonths\": 6,\r\n  \"annualInterestRate\": 0.25\r\n}"
+            },
+            "url": {
+              "raw": "{{CREDIT_APPLICATION_URL}}/credit-applications?customerRfc=XAXX010101000&page=0&size=25",
+              "host": [
+                "{{CREDIT_APPLICATION_URL}}"
+              ],
+              "path": [
+                "credit-applications"
+              ],
+              "query": [
+                {
+                  "key": "customerRfc",
+                  "value": "XAXX010101000"
+                },
+                {
+                  "key": "status",
+                  "value": "CREATED",
+                  "disabled": true
+                },
+                {
+                  "key": "minAmount",
+                  "value": "10000",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "maxAmount",
+                  "value": "15000",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "25"
+                }
+              ]
+            }
+          },
+          "_postman_previewlanguage": null,
+          "header": null,
+          "cookie": [],
+          "body": null
+        },
+        {
+          "name": "Search - With Default Filters",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"customerName\": \"Juan Perez Ramirez\",\r\n  \"customerEmail\": \"juan.perez@example.com\",\r\n  \"customerRfc\": \"XAXX010101000\",\r\n  \"requestedAmount\": 250000,\r\n  \"currency\": \"MXN\",\r\n  \"termMonths\": 6,\r\n  \"annualInterestRate\": 0.25\r\n}"
+            },
+            "url": {
+              "raw": "{{CREDIT_APPLICATION_URL}}/credit-applications?customerRfc=XAXX010101000",
+              "host": [
+                "{{CREDIT_APPLICATION_URL}}"
+              ],
+              "path": [
+                "credit-applications"
+              ],
+              "query": [
+                {
+                  "key": "customerRfc",
+                  "value": "XAXX010101000"
+                },
+                {
+                  "key": "status",
+                  "value": "CREATED",
+                  "disabled": true
+                },
+                {
+                  "key": "minAmount",
+                  "value": "10000",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "maxAmount",
+                  "value": "15000",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "0",
+                  "disabled": true
+                },
+                {
+                  "key": "size",
+                  "value": "25",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "_postman_previewlanguage": null,
+          "header": null,
+          "cookie": [],
+          "body": null
+        }
+      ]
+    },
+    {
+      "name": "Change Status credit-application",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"status\": \"UNDER_REVIEW\",\r\n    \"reason\": \"testing change status\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{CREDIT_APPLICATION_URL}}/credit-applications/:creditApplicationId/status",
+          "host": [
+            "{{CREDIT_APPLICATION_URL}}"
+          ],
+          "path": [
+            "credit-applications",
+            ":creditApplicationId",
+            "status"
+          ],
+          "variable": [
+            {
+              "key": "creditApplicationId",
+              "value": "4fdc0efa-6ff2-40cc-86ff-8421cad7c04b"
+            }
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "Bad Request - Missing Value",
+          "originalRequest": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"reason\": \"testing change status\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{CREDIT_APPLICATION_URL}}/credit-applications/:creditApplicationId/status",
+              "host": [
+                "{{CREDIT_APPLICATION_URL}}"
+              ],
+              "path": [
+                "credit-applications",
+                ":creditApplicationId",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "creditApplicationId",
+                  "value": "d71f316b-0996-4076-9028-4513f962d8f6"
+                }
+              ]
+            }
+          },
+          "_postman_previewlanguage": null,
+          "header": null,
+          "cookie": [],
+          "body": null
+        },
+        {
+          "name": "Bad Request - Invalid Value",
+          "originalRequest": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": \"TEST\",\r\n    \"reason\": \"testing change status\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{CREDIT_APPLICATION_URL}}/credit-applications/:creditApplicationId/status",
+              "host": [
+                "{{CREDIT_APPLICATION_URL}}"
+              ],
+              "path": [
+                "credit-applications",
+                ":creditApplicationId",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "creditApplicationId",
+                  "value": "d71f316b-0996-4076-9028-4513f962d8f6"
+                }
+              ]
+            }
+          },
+          "_postman_previewlanguage": null,
+          "header": null,
+          "cookie": [],
+          "body": null
+        },
+        {
+          "name": "Resource Not Found - CreditId Not Exists",
+          "originalRequest": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": \"UNDER_REVIEW\",\r\n    \"reason\": \"testing change status\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{CREDIT_APPLICATION_URL}}/credit-applications/:creditApplicationId/status",
+              "host": [
+                "{{CREDIT_APPLICATION_URL}}"
+              ],
+              "path": [
+                "credit-applications",
+                ":creditApplicationId",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "creditApplicationId",
+                  "value": "d71f316b-0996-4076-9028-4513f962d8f6"
+                }
+              ]
+            }
+          },
+          "_postman_previewlanguage": null,
+          "header": null,
+          "cookie": [],
+          "body": null
+        },
+        {
+          "name": "Conflict - Invalid status transition",
+          "originalRequest": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": \"APPROVED\",\r\n    \"reason\": \"testing change status\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{CREDIT_APPLICATION_URL}}/credit-applications/:creditApplicationId/status",
+              "host": [
+                "{{CREDIT_APPLICATION_URL}}"
+              ],
+              "path": [
+                "credit-applications",
+                ":creditApplicationId",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "creditApplicationId",
+                  "value": "4fdc0efa-6ff2-40cc-86ff-8421cad7c04b"
+                }
+              ]
+            }
+          },
+          "_postman_previewlanguage": "",
+          "header": [],
+          "cookie": [
+            {
+              "expires": "Invalid Date",
+              "domain": "",
+              "path": ""
+            }
+          ],
+          "body": ""
+        }
+      ]
+    }
+  ]
+}
